@@ -1,135 +1,197 @@
+/**
+ * @file snake.cpp
+ * @brief 蛇类实现文件
+ * @details 实现了蛇的初始化、移动、碰撞检测、方向控制等核心游戏逻辑
+ */
+
 #include "snake.h"
-#include <conio.h>
 #include "tools.h"
+#include <conio.h>
 #include <iostream>
 
-void Snake::InitSnake()//初始化蛇
-{
-    for (auto& point : snake)
-    {
-        point.PrintCircular();
-    }
+
+/**
+ * @brief 初始化并绘制蛇
+ * @details 遍历蛇身点集合，在控制台绘制完整的蛇身（黄色圆形）
+ */
+void Snake::InitSnake() {
+  // 遍历蛇身的所有点，逐个绘制
+  for (auto &point : snake) {
+    point.PrintCircular(); // 绘制圆形字符"●"表示蛇身
+  }
 }
 
-void Snake::Move()//蛇增长
-{
-    switch (direction)
-    {
-    case Direction::UP:
-        snake.emplace_back(Point(snake.back().GetX(), snake.back().GetY() - 1 ));
-        break;
-    case Direction::DOWN:
-        snake.emplace_back(Point(snake.back().GetX(), snake.back().GetY() + 1 ));
-        break;
-    case Direction::LEFT:
-        snake.emplace_back(Point(snake.back().GetX() - 1, snake.back().GetY() ));
-        break;
-    case Direction::RIGHT:
-        snake.emplace_back(Point(snake.back().GetX() + 1, snake.back().GetY() ));
-        break;
-    default:
-        break;
-    }
-    SetColor(14);
-    snake.back().PrintCircular();
+/**
+ * @brief 蛇增长（吃到食物后调用）
+ * @details
+ * 根据当前移动方向，在蛇的尾部（deque的back）添加一个新的点，使蛇身增长
+ *          新添加的点会根据方向在蛇头（最后一个元素）的基础上移动一步
+ */
+void Snake::Move() {
+  switch (direction) // 根据当前移动方向添加新点
+  {
+  case Direction::UP: // 向上移动
+    // 在蛇头上方添加新点（Y坐标减1）
+    snake.emplace_back(Point(snake.back().GetX(), snake.back().GetY() - 1));
+    break;
+  case Direction::DOWN: // 向下移动
+    // 在蛇头下方添加新点（Y坐标加1）
+    snake.emplace_back(Point(snake.back().GetX(), snake.back().GetY() + 1));
+    break;
+  case Direction::LEFT: // 向左移动
+    // 在蛇头左侧添加新点（X坐标减1）
+    snake.emplace_back(Point(snake.back().GetX() - 1, snake.back().GetY()));
+    break;
+  case Direction::RIGHT: // 向右移动
+    // 在蛇头右侧添加新点（X坐标加1）
+    snake.emplace_back(Point(snake.back().GetX() + 1, snake.back().GetY()));
+    break;
+  default:
+    break;
+  }
+
+  // 绘制新添加的蛇头部分（黄色）
+  SetColor(14);                 // 设置颜色为黄色
+  snake.back().PrintCircular(); // 绘制蛇的新头部
 }
 
-void Snake::NormalMove()//蛇正常移动，头增长，尾缩短
-{
-    Move();
-    snake.front().Clear();
-    snake.pop_front();
+/**
+ * @brief 蛇正常移动（未吃到食物时调用）
+ * @details 在头部添加一个新点（根据方向），同时清除并删除尾部，实现移动效果
+ *          这是蛇的基本移动方式，保持蛇的长度不变
+ */
+void Snake::NormalMove() {
+  Move();                // 在头部添加新点（向移动方向增长）
+  snake.front().Clear(); // 清除尾部显示
+  snake.pop_front();     // 删除尾部点，保持蛇的长度不变
 }
 
-bool Snake::OverEdge()//超出边界
-{
-    return snake.back().GetX() < 30 &&
-           snake.back().GetY() < 30 &&
-           snake.back().GetX() > 1  &&
-           snake.back().GetY() > 1;
+/**
+ * @brief 检测蛇是否超出边界（撞墙）
+ * @return bool true表示未超出边界（安全），false表示超出边界（游戏结束）
+ * @details 检查蛇头（snake.back()）的坐标是否在地图边界内（2-29之间）
+ */
+bool Snake::OverEdge() {
+  // 检查蛇头坐标是否在有效范围内（2 <= x < 30, 2 <= y < 30）
+  // 注意：边界坐标是1-30，但有效游戏区域是2-29
+  return snake.back().GetX() < 30 && snake.back().GetY() < 30 &&
+         snake.back().GetX() > 1 && snake.back().GetY() > 1;
 }
 
-bool Snake::HitItself()//撞到自身
-{
-    std::deque<Point>::size_type cnt = 1;
-    Point *head = new Point(snake.back().GetX(), snake.back().GetY());//获得头部坐标
-    for (auto& point : snake) //如果整条蛇中与蛇头不相同的坐标不等于蛇长，则意味着蛇头碰撞到自身
-    {
-        if ( !(point == *head) )
-            ++cnt;
-        else
-            break;
-    }
-    delete head;
-    if(cnt == snake.size())
-        return true;
-    else
-        return false;
-}
+/**
+ * @brief 检测蛇是否撞到自身
+ * @return bool true表示未撞到自身（安全），false表示撞到自身（游戏结束）
+ * @details 通过遍历蛇身，检查蛇头是否与其他身体部分重叠
+ *          如果蛇头位置在蛇身中出现的次数超过1次（即与其他身体部分重叠），则撞到自身
+ */
+bool Snake::HitItself() {
+  std::deque<Point>::size_type cnt = 1; // 计数器，初始为1（蛇头本身）
 
-bool Snake::ChangeDirection()//改变方向
-{
-    char ch;
-    if (kbhit())//kbhit函数返回值为两个，需注意
-    {
-        ch = getch();
-        switch (ch)
-        {
-        case -32:
-            ch = getch();
-            switch (ch)
-            {
-            case 72:
-                if (direction != Direction::DOWN)//如果方向与当前运动方向相反，无效
-                    direction = Direction::UP;
-                break;
-            case 80:
-                if (direction != Direction::UP)
-                    direction = Direction::DOWN;
-                break;
-            case 75:
-                if (direction != Direction::RIGHT)
-                    direction = Direction::LEFT;
-                break;
-            case 77:
-                if (direction != Direction::LEFT)
-                    direction = Direction::RIGHT;
-                break;
-            default:
-                break;
-            }
-            return true;
+  // 获取蛇头的坐标（snake.back()是蛇头）
+  Point *head = new Point(snake.back().GetX(), snake.back().GetY());
 
-        case 27://ESC
-            return false;
+  // 遍历蛇身，统计与蛇头位置相同的点的数量
+  // 如果整条蛇中与蛇头不相同的坐标数量等于蛇长，则意味着蛇头未碰撞到自身
+  for (auto &point : snake) {
+    if (!(point == *head)) // 如果当前点与蛇头位置不同
+      ++cnt;               // 计数器加1
+    else                   // 如果找到与蛇头位置相同的点
+      break;               // 停止遍历（已经发现重叠）
+  }
 
-        default:
-            return true;
+  delete head; // 释放临时对象
 
-        }
-    }
+  // 如果计数器等于蛇的长度，说明蛇头未与任何身体部分重叠（安全）
+  if (cnt == snake.size())
     return true;
+  else // 否则说明蛇头撞到了身体（游戏结束）
+    return false;
 }
 
-bool Snake::GetFood(const Food& cfood)
-{
-    if (snake.back().GetX() == cfood.x && snake.back().GetY() == cfood.y)
-        return true;
-    else
-        return false;
-}
+/**
+ * @brief 处理键盘输入并改变蛇的移动方向
+ * @return bool true表示继续游戏，false表示按ESC暂停（退出游戏循环）
+ * @details 检测方向键输入并更新蛇的移动方向，禁止向相反方向移动
+ *          按ESC键时返回false，触发暂停菜单
+ */
+bool Snake::ChangeDirection() {
+  char ch;
 
-bool Snake::GetBigFood(Food& cfood)
-{
-    if (snake.back().GetX() == cfood.big_x && snake.back().GetY() == cfood.big_y)
-    {
-        cfood.big_flag = false;
-        cfood.big_x = 0;
-        cfood.big_y = 0;
-        SetCursorPosition(1, 0);
-        std::cout << "                                                            " ;
-        return true;
+  if (kbhit()) // 检测是否有键盘输入（非阻塞）
+  {
+    ch = getch(); // 获取按键字符
+
+    switch (ch) {
+    case -32:       // 方向键的前缀码（-32表示按下的是方向键）
+      ch = getch(); // 再次获取，得到实际的方向键值
+      switch (ch) {
+      case 72: // 上方向键（UP）
+        // 如果当前方向不是向下，则允许向上移动（禁止180度转向）
+        if (direction != Direction::DOWN)
+          direction = Direction::UP;
+        break;
+      case 80: // 下方向键（DOWN）
+        if (direction != Direction::UP)
+          direction = Direction::DOWN;
+        break;
+      case 75: // 左方向键（LEFT）
+        if (direction != Direction::RIGHT)
+          direction = Direction::LEFT;
+        break;
+      case 77: // 右方向键（RIGHT）
+        if (direction != Direction::LEFT)
+          direction = Direction::RIGHT;
+        break;
+      default:
+        break;
+      }
+      return true; // 方向改变成功，继续游戏
+
+    case 27:        // ESC键
+      return false; // 返回false，触发暂停菜单
+
+    default:       // 其他按键
+      return true; // 忽略其他按键，继续游戏
     }
-    else
-        return false;
+  }
+  return true; // 无按键输入，继续游戏
+}
+
+/**
+ * @brief 检测蛇是否吃到普通食物
+ * @param cfood 食物对象的常引用
+ * @return bool true表示吃到食物，false表示未吃到
+ * @details 检查蛇头坐标是否与普通食物坐标相同
+ */
+bool Snake::GetFood(const Food &cfood) {
+  // 比较蛇头坐标与食物坐标
+  if (snake.back().GetX() == cfood.x && snake.back().GetY() == cfood.y)
+    return true; // 吃到食物
+  else
+    return false; // 未吃到食物
+}
+
+/**
+ * @brief 检测蛇是否吃到限时食物
+ * @param cfood 食物对象的引用（需要修改食物状态）
+ * @return bool true表示吃到限时食物，false表示未吃到
+ * @details 检查蛇头坐标是否与限时食物坐标相同，吃到后清除限时食物并清空进度条
+ */
+bool Snake::GetBigFood(Food &cfood) {
+  // 比较蛇头坐标与限时食物坐标
+  if (snake.back().GetX() == cfood.big_x &&
+      snake.back().GetY() == cfood.big_y) {
+    // 吃到限时食物，清除限时食物状态
+    cfood.big_flag = false; // 清除限时食物存在标志
+    cfood.big_x = 0;        // 重置坐标
+    cfood.big_y = 0;
+
+    // 清除进度条显示
+    SetCursorPosition(1, 0);
+    std::cout
+        << "                                                            "; // 用空格覆盖进度条
+
+    return true; // 吃到限时食物
+  } else
+    return false; // 未吃到限时食物
 }

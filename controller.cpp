@@ -1,571 +1,603 @@
-#include <iostream>
-#include <time.h>
-#include <conio.h>
-#include <windows.h>
+/**
+ * @file controller.cpp
+ * @brief æ¸¸æˆæ§åˆ¶å™¨å®ç°æ–‡ä»¶
+ * @details å®ç°äº†æ¸¸æˆçš„æ•´ä½“æµç¨‹æ§åˆ¶ï¼ŒåŒ…æ‹¬å¼€å§‹ç•Œé¢ã€éš¾åº¦é€‰æ‹©ã€æ¸¸æˆä¸»å¾ªç¯ã€
+ *          æš‚åœèœå•ã€åˆ†æ•°ç®¡ç†ã€æ¸¸æˆç»“æŸç•Œé¢ç­‰æ ¸å¿ƒåŠŸèƒ½
+ */
+
 #include "controller.h"
-#include "tools.h"
-#include "startinterface.h"
+#include "food.h"
 #include "map.h"
 #include "snake.h"
-#include "food.h"
+#include "startinterface.h"
+#include "tools.h"
+#include <conio.h>
+#include <iostream>
+#include <time.h>
+#include <windows.h>
 
-void Controller::Start()//¿ªÊ¼½çÃæ
-{
-    SetWindowSize(41, 32);//ÉèÖÃ´°¿Ú´óĞ¡
-    SetColor(2);//ÉèÖÃ¿ªÊ¼¶¯»­ÑÕÉ«
-    StartInterface *start = new StartInterface();//¶¯Ì¬·ÖÅäÒ»¸öStartInterfaceÀàstart
-    start->Action();//¿ªÊ¼¶¯»­
-    delete start;//ÊÍ·ÅÄÚ´æ¿Õ¼ä
 
-    /*ÉèÖÃ¹Ø±êÎ»ÖÃ£¬²¢Êä³öÌáÊ¾Óï£¬µÈ´ıÈÎÒâ¼üÊäÈë½áÊø*/
-    SetCursorPosition(13, 26);
-    std::cout << "Press any key to start... " ;
-    SetCursorPosition(13, 27);
-    system("pause");
+/**
+ * @brief æ˜¾ç¤ºæ¸¸æˆå¼€å§‹ç•Œé¢
+ * @details è®¾ç½®çª—å£å¤§å°ï¼Œæ’­æ”¾å¼€å§‹åŠ¨ç”»ï¼Œç„¶åç­‰å¾…ç©å®¶æŒ‰é”®å¼€å§‹æ¸¸æˆ
+ */
+void Controller::Start() {
+  SetWindowSize(41, 32); // è®¾ç½®çª—å£å¤§å°ä¸º41åˆ—32è¡Œï¼ˆé€»è¾‘å•ä½ï¼‰
+  SetColor(2);           // è®¾ç½®å¼€å§‹åŠ¨ç”»é¢œè‰²ä¸ºç»¿è‰²
+  StartInterface *start = new StartInterface(); // åŠ¨æ€åˆ†é…å¼€å§‹ç•Œé¢å¯¹è±¡
+  start->Action(); // æ‰§è¡Œå¼€å§‹åŠ¨ç”»ï¼ˆè›‡å½¢åŠ¨ç”»å’Œ"SNAKE"æ–‡å­—ï¼‰
+  delete start;    // é‡Šæ”¾å†…å­˜ç©ºé—´
+
+  /* è®¾ç½®å…‰æ ‡ä½ç½®ï¼Œå¹¶è¾“å‡ºæç¤ºè¯­ï¼Œç­‰å¾…ä»»æ„é”®è¾“å…¥ */
+  SetCursorPosition(13, 26);
+  std::cout << "Press any key to start... ";
+  SetCursorPosition(13, 27);
+  system("pause"); // æš‚åœç¨‹åºï¼Œç­‰å¾…ç”¨æˆ·æŒ‰é”®
 }
 
-void Controller::Select()//Ñ¡Ôñ½çÃæ
-{
-    /*³õÊ¼»¯½çÃæÑ¡Ïî*/
-    SetColor(3);
-    SetCursorPosition(13, 26);
-    std::cout << "                          " ;
-    SetCursorPosition(13, 27);
-    std::cout << "                          " ;
-    SetCursorPosition(6, 21);
-    std::cout << "ÇëÑ¡ÔñÓÎÏ·ÄÑ¶È£º" ;
-    SetCursorPosition(6, 22);
-    std::cout << "(ÉÏÏÂ¼üÑ¡Ôñ,»Ø³µÈ·ÈÏ)" ;
-    SetCursorPosition(27, 22);
-    SetBackColor();//µÚÒ»¸öÑ¡ÏîÉèÖÃ±³¾°É«ÒÔ±íÊ¾µ±Ç°Ñ¡ÖĞ
-    std::cout << "¼òµ¥Ä£Ê½" ;
-    SetCursorPosition(27, 24);
-    SetColor(3);
-    std::cout << "ÆÕÍ¨Ä£Ê½" ;
-    SetCursorPosition(27, 26);
-    std::cout << "À§ÄÑÄ£Ê½" ;
-    SetCursorPosition(27, 28);
-    std::cout << "Á¶ÓüÄ£Ê½" ;
+/**
+ * @brief æ˜¾ç¤ºéš¾åº¦é€‰æ‹©ç•Œé¢
+ * @details æ˜¾ç¤ºå››ä¸ªéš¾åº¦é€‰é¡¹ï¼Œæ”¯æŒä¸Šä¸‹æ–¹å‘é”®é€‰æ‹©ï¼Œå›è½¦ç¡®è®¤
+ *          æ ¹æ®é€‰æ‹©çš„éš¾åº¦è®¾ç½®è›‡çš„ç§»åŠ¨é€Ÿåº¦ï¼ˆspeedå€¼è¶Šå°ï¼Œé€Ÿåº¦è¶Šå¿«ï¼‰
+ */
+void Controller::Select() {
+  /* åˆå§‹åŒ–ç•Œé¢é€‰é¡¹ */
+  SetColor(3); // è®¾ç½®æ–‡å­—é¢œè‰²ä¸ºé’è‰²
+  // æ¸…é™¤ä¹‹å‰çš„æç¤ºæ–‡å­—
+  SetCursorPosition(13, 26);
+  std::cout << "                          ";
+  SetCursorPosition(13, 27);
+  std::cout << "                          ";
+
+  // æ˜¾ç¤ºéš¾åº¦é€‰æ‹©æç¤º
+  SetCursorPosition(6, 21);
+  std::cout << "è¯·é€‰æ‹©æ¸¸æˆéš¾åº¦ï¼š";
+  SetCursorPosition(6, 22);
+  std::cout << "(ä¸Šä¸‹é”®é€‰æ‹©,å›è½¦ç¡®è®¤)";
+
+  // ç¬¬ä¸€ä¸ªé€‰é¡¹è®¾ç½®èƒŒæ™¯è‰²ä»¥è¡¨ç¤ºå½“å‰é€‰ä¸­
+  SetCursorPosition(27, 22);
+  SetBackColor(); // è®¾ç½®é«˜äº®èƒŒæ™¯
+  std::cout << "ç®€å•æ¨¡å¼";
+  SetCursorPosition(27, 24);
+  SetColor(3);
+  std::cout << "æ™®é€šæ¨¡å¼";
+  SetCursorPosition(27, 26);
+  std::cout << "å›°éš¾æ¨¡å¼";
+  SetCursorPosition(27, 28);
+  std::cout << "ç‚¼ç‹±æ¨¡å¼";
+  SetCursorPosition(0, 31);
+  score = 0;
+
+  /* ä¸Šä¸‹æ–¹å‘é”®é€‰æ‹©æ¨¡å— */
+  int ch;            // è®°å½•é”®å…¥å€¼
+  key = 1;           // è®°å½•é€‰ä¸­é¡¹ï¼Œåˆå§‹é€‰æ‹©ç¬¬ä¸€ä¸ªï¼ˆç®€å•æ¨¡å¼ï¼‰
+  bool flag = false; // è®°å½•æ˜¯å¦é”®å…¥Enteré”®æ ‡è®°ï¼Œåˆå§‹ç½®ä¸ºå¦
+
+  while ((ch = getch())) // å¾ªç¯æ£€æµ‹é”®ç›˜è¾“å…¥
+  {
+    switch (ch) // æ£€æµ‹è¾“å…¥é”®
+    {
+    case 72:       // UPä¸Šæ–¹å‘é”®
+      if (key > 1) // å½“æ­¤æ—¶é€‰ä¸­é¡¹ä¸ºç¬¬ä¸€é¡¹æ—¶ï¼ŒUPä¸Šæ–¹å‘é”®æ— æ•ˆ
+      {
+        switch (key) {
+        case 2:
+          SetCursorPosition(27, 22); // ç»™å¾…é€‰ä¸­é¡¹è®¾ç½®èƒŒæ™¯è‰²
+          SetBackColor();
+          std::cout << "ç®€å•æ¨¡å¼";
+
+          SetCursorPosition(27, 24); // å°†å·²é€‰ä¸­é¡¹å–æ¶ˆæˆ‘èƒŒæ™¯è‰²
+          SetColor(3);
+          std::cout << "æ™®é€šæ¨¡å¼";
+
+          --key;
+          break;
+        case 3:
+          SetCursorPosition(27, 24);
+          SetBackColor();
+          std::cout << "æ™®é€šæ¨¡å¼";
+
+          SetCursorPosition(27, 26);
+          SetColor(3);
+          std::cout << "å›°éš¾æ¨¡å¼";
+
+          --key;
+          break;
+        case 4:
+          SetCursorPosition(27, 26);
+          SetBackColor();
+          std::cout << "å›°éš¾æ¨¡å¼";
+
+          SetCursorPosition(27, 28);
+          SetColor(3);
+          std::cout << "ç‚¼ç‹±æ¨¡å¼";
+
+          --key;
+          break;
+        }
+      }
+      break;
+
+    case 80: // DOWNä¸‹æ–¹å‘é”®
+      if (key < 4) {
+        switch (key) {
+        case 1:
+          SetCursorPosition(27, 24);
+          SetBackColor();
+          std::cout << "æ™®é€šæ¨¡å¼";
+          SetCursorPosition(27, 22);
+          SetColor(3);
+          std::cout << "ç®€å•æ¨¡å¼";
+
+          ++key;
+          break;
+        case 2:
+          SetCursorPosition(27, 26);
+          SetBackColor();
+          std::cout << "å›°éš¾æ¨¡å¼";
+          SetCursorPosition(27, 24);
+          SetColor(3);
+          std::cout << "æ™®é€šæ¨¡å¼";
+
+          ++key;
+          break;
+        case 3:
+          SetCursorPosition(27, 28);
+          SetBackColor();
+          std::cout << "ç‚¼ç‹±æ¨¡å¼";
+          SetCursorPosition(27, 26);
+          SetColor(3);
+          std::cout << "å›°éš¾æ¨¡å¼";
+
+          ++key;
+          break;
+        }
+      }
+      break;
+
+    case 13:       // Enterå›è½¦é”®
+      flag = true; // æ ‡è®°å·²æŒ‰ä¸‹ç¡®è®¤é”®
+      break;
+    default: // æ— æ•ˆæŒ‰é”®
+      break;
+    }
+    if (flag)
+      break; // è¾“å…¥Enterå›è½¦é”®ç¡®è®¤ï¼Œé€€å‡ºæ£€æŸ¥è¾“å…¥å¾ªç¯
+
+    SetCursorPosition(0, 31); // å°†å…‰æ ‡ç½®äºå·¦ä¸‹è§’ï¼Œé¿å…å…‰æ ‡é—ªçƒå½±å“æ¸¸æˆä½“éªŒ
+  }
+
+  // æ ¹æ®æ‰€é€‰é€‰é¡¹è®¾ç½®è›‡çš„ç§»åŠ¨é€Ÿåº¦ï¼Œspeedå€¼è¶Šå°ï¼Œé€Ÿåº¦è¶Šå¿«
+  switch (key) {
+  case 1:
+    speed = 135;
+    break;
+  case 2:
+    speed = 100;
+    break;
+  case 3:
+    speed = 60;
+    break;
+  case 4:
+    speed = 30;
+    break;
+  default:
+    break;
+  }
+}
+
+/**
+ * @brief ç»˜åˆ¶æ¸¸æˆä¸»ç•Œé¢
+ * @details æ¸…å±åç»˜åˆ¶åœ°å›¾è¾¹ç•Œå’Œä¾§è¾¹æ ä¿¡æ¯ï¼ˆæ¸¸æˆæ ‡é¢˜ã€éš¾åº¦ã€å¾—åˆ†ã€æ“ä½œè¯´æ˜ï¼‰
+ */
+void Controller::DrawGame() {
+  system("cls"); // æ¸…å±
+
+  /* ç»˜åˆ¶åœ°å›¾ */
+  SetColor(3);               // è®¾ç½®é¢œè‰²ä¸ºé’è‰²
+  Map *init_map = new Map(); // åˆ›å»ºåœ°å›¾å¯¹è±¡
+  init_map->PrintInitmap();  // ç»˜åˆ¶åœ°å›¾è¾¹ç•Œï¼ˆåŠ¨ç”»æ•ˆæœï¼‰
+  delete init_map;           // é‡Šæ”¾å†…å­˜
+
+  /* ç»˜åˆ¶ä¾§è¾¹æ  */
+  SetColor(3); // è®¾ç½®é¢œè‰²ä¸ºé’è‰²
+  SetCursorPosition(33, 1);
+  std::cout << "Greedy Snake";
+  SetCursorPosition(34, 2);
+  std::cout << "è´ªåƒè›‡";
+  SetCursorPosition(31, 4);
+  std::cout << "éš¾åº¦ï¼š";
+  SetCursorPosition(36, 5);
+  switch (key) {
+  case 1:
+    std::cout << "ç®€å•æ¨¡å¼";
+    break;
+  case 2:
+    std::cout << "æ™®é€šæ¨¡å¼";
+    break;
+  case 3:
+    std::cout << "å›°éš¾æ¨¡å¼";
+    break;
+  case 4:
+    std::cout << "ç‚¼ç‹±æ¨¡å¼";
+    break;
+  default:
+    break;
+  }
+  SetCursorPosition(31, 7);
+  std::cout << "å¾—åˆ†ï¼š";
+  SetCursorPosition(37, 8);
+  std::cout << "     0";
+  SetCursorPosition(33, 13);
+  std::cout << " æ–¹å‘é”®ç§»åŠ¨";
+  SetCursorPosition(33, 15);
+  std::cout << " ESCé”®æš‚åœ";
+}
+
+/**
+ * @brief æ¸¸æˆä¸»å¾ªç¯ï¼ˆäºŒçº§å¾ªç¯ï¼‰
+ * @return int è¿”å›å€¼ï¼š1è¡¨ç¤ºé‡æ–°å¼€å§‹ï¼Œ2è¡¨ç¤ºé€€å‡ºæ¸¸æˆ
+ * @details åˆå§‹åŒ–è›‡å’Œé£Ÿç‰©ï¼Œè¿›å…¥æ¸¸æˆå¾ªç¯ï¼Œå¤„ç†ç”¨æˆ·è¾“å…¥ã€ç¢°æ’æ£€æµ‹ã€é£Ÿç‰©ç”Ÿæˆç­‰
+ *          å½“æ¸¸æˆç»“æŸæ—¶è¿”å›ç›¸åº”çŠ¶æ€ç 
+ */
+int Controller::PlayGame() {
+  /* åˆå§‹åŒ–è›‡å’Œé£Ÿç‰© */
+  Snake *csnake = new Snake(); // åˆ›å»ºè›‡å¯¹è±¡
+  Food *cfood = new Food();    // åˆ›å»ºé£Ÿç‰©å¯¹è±¡
+  SetColor(6);                 // è®¾ç½®é¢œè‰²ä¸ºé»„è‰²
+  csnake->InitSnake();         // åˆå§‹åŒ–å¹¶ç»˜åˆ¶è›‡
+  srand(
+      (unsigned)time(NULL)); // è®¾ç½®éšæœºæ•°ç§å­ï¼Œå¦‚æœæ²¡æœ‰ï¼Œé£Ÿç‰©çš„å‡ºç°ä½ç½®å°†ä¼šå›ºå®š
+  cfood->DrawFood(*csnake);  // ç»˜åˆ¶ç¬¬ä¸€ä¸ªé£Ÿç‰©
+
+  /* æ¸¸æˆå¾ªç¯ */
+  // åˆ¤æ–­æ˜¯å¦æ’å¢™æˆ–æ’åˆ°è‡ªèº«ï¼Œå³æ˜¯å¦è¿˜æœ‰ç”Ÿå‘½ï¼ˆä¸¤ä¸ªæ¡ä»¶éƒ½ä¸ºtrueæ—¶ç»§ç»­æ¸¸æˆï¼‰
+  while (csnake->OverEdge() && csnake->HitItself()) {
+    /* è°ƒå‡ºé€‰æ‹©èœå• */
+    if (!csnake->ChangeDirection()) // æŒ‰Escé”®æ—¶è¿”å›false
+    {
+      int tmp = Menu(); // ç»˜åˆ¶èœå•ï¼Œå¹¶å¾—åˆ°è¿”å›å€¼
+      switch (tmp) {
+      case 1: // ç»§ç»­æ¸¸æˆ
+        break;
+
+      case 2:          // é‡æ–°å¼€å§‹
+        delete csnake; // é‡Šæ”¾è›‡å¯¹è±¡å†…å­˜
+        delete cfood;  // é‡Šæ”¾é£Ÿç‰©å¯¹è±¡å†…å­˜
+        return 1; // å°†1ä½œä¸ºPlayGameå‡½æ•°çš„è¿”å›å€¼è¿”å›åˆ°Gameå‡½æ•°ä¸­ï¼Œè¡¨ç¤ºé‡æ–°å¼€å§‹
+
+      case 3: // é€€å‡ºæ¸¸æˆ
+        delete csnake;
+        delete cfood;
+        return 2; // å°†2ä½œä¸ºPlayGameå‡½æ•°çš„è¿”å›å€¼è¿”å›åˆ°Gameå‡½æ•°ä¸­ï¼Œè¡¨ç¤ºé€€å‡ºæ¸¸æˆ
+
+      default:
+        break;
+      }
+    }
+
+    // æ£€æµ‹æ˜¯å¦åƒåˆ°æ™®é€šé£Ÿç‰©
+    if (csnake->GetFood(*cfood)) {
+      csnake->Move();           // è›‡å¢é•¿ï¼ˆé•¿åº¦+1ï¼‰
+      UpdateScore(1);           // æ›´æ–°åˆ†æ•°ï¼Œ1ä¸ºåˆ†æ•°æƒé‡
+      RewriteScore();           // é‡æ–°ç»˜åˆ¶åˆ†æ•°
+      cfood->DrawFood(*csnake); // ç»˜åˆ¶æ–°é£Ÿç‰©
+    } else                      // æœªåƒåˆ°é£Ÿç‰©
+    {
+      csnake->NormalMove(); // è›‡æ­£å¸¸ç§»åŠ¨ï¼ˆé•¿åº¦ä¸å˜ï¼‰
+    }
+
+    // æ£€æµ‹æ˜¯å¦åƒåˆ°é™æ—¶é£Ÿç‰©
+    if (csnake->GetBigFood(*cfood)) {
+      csnake->Move();                           // è›‡å¢é•¿
+      UpdateScore(cfood->GetProgressBar() / 5); // åˆ†æ•°æ ¹æ®é™æ—¶é£Ÿç‰©è¿›åº¦æ¡ç¡®å®š
+      RewriteScore();
+    }
+
+    // å¦‚æœæ­¤æ—¶æœ‰é™æ—¶é£Ÿç‰©ï¼Œé—ªçƒå®ƒå¹¶æ›´æ–°è¿›åº¦æ¡
+    if (cfood->GetBigFlag()) {
+      cfood->FlashBigFood();
+    }
+
+    Sleep(speed); // å»¶è¿Ÿï¼Œåˆ¶é€ è›‡çš„ç§»åŠ¨æ•ˆæœï¼ˆspeedå€¼è¶Šå°ï¼Œé€Ÿåº¦è¶Šå¿«ï¼‰
+  }
+
+  /* è›‡æ­»äº¡ */
+  delete csnake; // é‡Šæ”¾åˆ†é…çš„å†…å­˜ç©ºé—´
+  delete cfood;
+  int tmp = GameOver(); // ç»˜åˆ¶æ¸¸æˆç»“æŸç•Œé¢ï¼Œå¹¶è¿”å›æ‰€é€‰é¡¹
+  switch (tmp) {
+  case 1:
+    return 1; // é‡æ–°å¼€å§‹
+  case 2:
+    return 2; // é€€å‡ºæ¸¸æˆ
+  default:
+    return 2;
+  }
+}
+
+/**
+ * @brief æ›´æ–°æ¸¸æˆåˆ†æ•°
+ * @param tmp åˆ†æ•°æƒé‡ç³»æ•°
+ * @details åˆ†æ•°è®¡ç®—å…¬å¼ï¼šscore += key * 10 * tmp
+ *          å…¶ä¸­keyæ˜¯éš¾åº¦ç³»æ•°ï¼ˆ1-4ï¼‰ï¼Œtmpæ˜¯ä¸åŒé£Ÿç‰©çš„æƒé‡
+ */
+void Controller::UpdateScore(const int &tmp) {
+  score += key * 10 * tmp; // æ‰€å¾—åˆ†æ•°æ ¹æ®æ¸¸æˆéš¾åº¦åŠä¼ å…¥çš„å‚æ•°tmpç¡®å®š
+}
+
+/**
+ * @brief é‡æ–°ç»˜åˆ¶åˆ†æ•°æ˜¾ç¤º
+ * @details
+ * ä¸ºä¿æŒåˆ†æ•°å°¾éƒ¨å¯¹é½ï¼Œè®¡ç®—å½“å‰åˆ†æ•°ä½æ•°ï¼Œå°†å‰©ä½™ä½æ•°ç”¨ç©ºæ ¼è¡¥å…¨ï¼Œå†è¾“å‡ºåˆ†æ•°
+ */
+void Controller::RewriteScore() {
+  SetCursorPosition(37, 8); // è®¾ç½®å…‰æ ‡åˆ°åˆ†æ•°æ˜¾ç¤ºä½ç½®
+  SetColor(11);             // è®¾ç½®é¢œè‰²ä¸ºäº®é’è‰²
+  int bit = 0;              // åˆ†æ•°ä½æ•°è®¡æ•°å™¨
+  int tmp = score;
+  while (tmp != 0) // è®¡ç®—åˆ†æ•°çš„ä½æ•°
+  {
+    ++bit;
+    tmp /= 10;
+  }
+  // ç”¨ç©ºæ ¼è¡¥å…¨åˆ°6ä½ï¼ˆä¿æŒå¯¹é½ï¼‰
+  for (int i = 0; i < (6 - bit); ++i) {
+    std::cout << " ";
+  }
+  std::cout << score; // è¾“å‡ºåˆ†æ•°
+}
+
+/**
+ * @brief æ˜¾ç¤ºæš‚åœèœå•
+ * @return int è¿”å›å€¼ï¼š1è¡¨ç¤ºç»§ç»­æ¸¸æˆï¼Œ2è¡¨ç¤ºé‡æ–°å¼€å§‹ï¼Œ3è¡¨ç¤ºé€€å‡ºæ¸¸æˆ
+ * @details
+ * æ˜¾ç¤ºä¸‰ä¸ªé€‰é¡¹ï¼ˆç»§ç»­æ¸¸æˆã€é‡æ–°å¼€å§‹ã€é€€å‡ºæ¸¸æˆï¼‰ï¼Œæ”¯æŒä¸Šä¸‹æ–¹å‘é”®é€‰æ‹©å’Œå›è½¦ç¡®è®¤
+ */
+int Controller::Menu() {
+  /* ç»˜åˆ¶èœå• */
+  SetColor(11);
+  SetCursorPosition(32, 19);
+  std::cout << "èœå•ï¼š";
+  Sleep(100);
+  SetCursorPosition(34, 21);
+  SetBackColor();
+  std::cout << "ç»§ç»­æ¸¸æˆ";
+  Sleep(100);
+  SetCursorPosition(34, 23);
+  SetColor(11);
+  std::cout << "é‡æ–°å¼€å§‹";
+  Sleep(100);
+  SetCursorPosition(34, 25);
+  std::cout << "é€€å‡ºæ¸¸æˆ";
+  SetCursorPosition(0, 31);
+
+  /*é€‰æ‹©éƒ¨åˆ†*/
+  int ch;
+  int tmp_key = 1;
+  bool flag = false;
+  while ((ch = getch())) {
+    switch (ch) {
+    case 72: // UP
+      if (tmp_key > 1) {
+        switch (tmp_key) {
+        case 2:
+          SetCursorPosition(34, 21);
+          SetBackColor();
+          std::cout << "ç»§ç»­æ¸¸æˆ";
+          SetCursorPosition(34, 23);
+          SetColor(11);
+          std::cout << "é‡æ–°å¼€å§‹";
+
+          --tmp_key;
+          break;
+        case 3:
+          SetCursorPosition(34, 23);
+          SetBackColor();
+          std::cout << "é‡æ–°å¼€å§‹";
+          SetCursorPosition(34, 25);
+          SetColor(11);
+          std::cout << "é€€å‡ºæ¸¸æˆ";
+
+          --tmp_key;
+          break;
+        }
+      }
+      break;
+
+    case 80: // DOWN
+      if (tmp_key < 3) {
+        switch (tmp_key) {
+        case 1:
+          SetCursorPosition(34, 23);
+          SetBackColor();
+          std::cout << "é‡æ–°å¼€å§‹";
+          SetCursorPosition(34, 21);
+          SetColor(11);
+          std::cout << "ç»§ç»­æ¸¸æˆ";
+
+          ++tmp_key;
+          break;
+        case 2:
+          SetCursorPosition(34, 25);
+          SetBackColor();
+          std::cout << "é€€å‡ºæ¸¸æˆ";
+          SetCursorPosition(34, 23);
+          SetColor(11);
+          std::cout << "é‡æ–°å¼€å§‹";
+
+          ++tmp_key;
+          break;
+        }
+      }
+      break;
+
+    case 13: // Enter
+      flag = true;
+      break;
+
+    default:
+      break;
+    }
+
+    if (flag) {
+      break;
+    }
     SetCursorPosition(0, 31);
-    score = 0;
+  }
 
-    /*ÉÏÏÂ·½Ïò¼üÑ¡ÔñÄ£¿é*/
-    int ch;//¼ÇÂ¼¼üÈëÖµ
-    key = 1;//¼ÇÂ¼Ñ¡ÖĞÏî£¬³õÊ¼Ñ¡ÔñµÚÒ»¸ö
-    bool flag = false;//¼ÇÂ¼ÊÇ·ñ¼üÈëEnter¼ü±ê¼Ç£¬³õÊ¼ÖÃÎª·ñ
-    while ((ch = getch()))
-    {
-        switch (ch)//¼ì²âÊäÈë¼ü
-        {
-        case 72://UPÉÏ·½Ïò¼ü
-            if (key > 1)//µ±´ËÊ±Ñ¡ÖĞÏîÎªµÚÒ»ÏîÊ±£¬UPÉÏ·½Ïò¼üÎŞĞ§
-            {
-                switch (key)
-                {
-                case 2:
-                    SetCursorPosition(27, 22);//¸ø´ıÑ¡ÖĞÏîÉèÖÃ±³¾°É«
-                    SetBackColor();
-                    std::cout << "¼òµ¥Ä£Ê½" ;
-
-                    SetCursorPosition(27, 24);//½«ÒÑÑ¡ÖĞÏîÈ¡ÏûÎÒ±³¾°É«
-                    SetColor(3);
-                    std::cout << "ÆÕÍ¨Ä£Ê½" ;
-
-                    --key;
-                    break;
-                case 3:
-                    SetCursorPosition(27, 24);
-                    SetBackColor();
-                    std::cout << "ÆÕÍ¨Ä£Ê½" ;
-
-                    SetCursorPosition(27, 26);
-                    SetColor(3);
-                    std::cout << "À§ÄÑÄ£Ê½" ;
-
-                    --key;
-                    break;
-                case 4:
-                    SetCursorPosition(27, 26);
-                    SetBackColor();
-                    std::cout << "À§ÄÑÄ£Ê½" ;
-
-                    SetCursorPosition(27, 28);
-                    SetColor(3);
-                    std::cout << "Á¶ÓüÄ£Ê½" ;
-
-                    --key;
-                    break;
-                }
-            }
-            break;
-
-        case 80://DOWNÏÂ·½Ïò¼ü
-            if (key < 4)
-            {
-                switch (key)
-                {
-                case 1:
-                    SetCursorPosition(27, 24);
-                    SetBackColor();
-                    std::cout << "ÆÕÍ¨Ä£Ê½" ;
-                    SetCursorPosition(27, 22);
-                    SetColor(3);
-                    std::cout << "¼òµ¥Ä£Ê½" ;
-
-                    ++key;
-                    break;
-                case 2:
-                    SetCursorPosition(27, 26);
-                    SetBackColor();
-                    std::cout << "À§ÄÑÄ£Ê½" ;
-                    SetCursorPosition(27, 24);
-                    SetColor(3);
-                    std::cout << "ÆÕÍ¨Ä£Ê½" ;
-
-                    ++key;
-                    break;
-                case 3:
-                    SetCursorPosition(27, 28);
-                    SetBackColor();
-                    std::cout << "Á¶ÓüÄ£Ê½" ;
-                    SetCursorPosition(27, 26);
-                    SetColor(3);
-                    std::cout << "À§ÄÑÄ£Ê½" ;
-
-                    ++key;
-                    break;
-                }
-            }
-            break;
-
-        case 13://Enter»Ø³µ¼ü
-            flag = true;
-            break;
-        default://ÎŞĞ§°´¼ü
-            break;
-        }
-        if (flag) break;//ÊäÈëEnter»Ø³µ¼üÈ·ÈÏ£¬ÍË³ö¼ì²éÊäÈëÑ­»·
-
-        SetCursorPosition(0, 31);//½«¹â±êÖÃÓÚ×óÏÂ½Ç£¬±ÜÃâ¹Ø±êÉÁË¸Ó°ÏìÓÎÏ·ÌåÑé
-    }
-
-    switch (key)//¸ù¾İËùÑ¡Ñ¡ÏîÉèÖÃÉßµÄÒÆ¶¯ËÙ¶È£¬speedÖµÔ½Ğ¡£¬ËÙ¶ÈÔ½¿ì
-    {
-    case 1:
-        speed = 135;
-        break;
-    case 2:
-        speed = 100;
-        break;
-    case 3:
-        speed = 60;
-        break;
-    case 4:
-        speed = 30;
-        break;
-    default:
-        break;
-    }
-}
-
-void Controller::DrawGame()//»æÖÆÓÎÏ·½çÃæ
-{
-    system("cls");//ÇåÆÁ
-
-    /*»æÖÆµØÍ¼*/
-    SetColor(3);
-    Map *init_map = new Map();
-    init_map->PrintInitmap();
-    delete init_map;
-
-    /*»æÖÆ²à±ßÀ¸*/
-    SetColor(3);
-    SetCursorPosition(33, 1);
-    std::cout << "Greedy Snake" ;
-    SetCursorPosition(34, 2);
-    std::cout << "Ì°³ÔÉß" ;
-    SetCursorPosition(31, 4);
-    std::cout << "ÄÑ¶È£º" ;
-    SetCursorPosition(36, 5);
-    switch (key)
-    {
-    case 1:
-        std::cout << "¼òµ¥Ä£Ê½" ;
-        break;
-    case 2:
-        std::cout << "ÆÕÍ¨Ä£Ê½" ;
-        break;
-    case 3:
-        std::cout << "À§ÄÑÄ£Ê½" ;
-        break;
-    case 4:
-        std::cout << "Á¶ÓüÄ£Ê½" ;
-        break;
-    default:
-        break;
-    }
-    SetCursorPosition(31, 7);
-    std::cout << "µÃ·Ö£º" ;
-    SetCursorPosition(37, 8);
-    std::cout << "     0" ;
-    SetCursorPosition(33, 13);
-    std::cout << " ·½Ïò¼üÒÆ¶¯" ;
-    SetCursorPosition(33, 15);
-    std::cout << " ESC¼üÔİÍ£" ;
-}
-
-int Controller::PlayGame()//ÓÎÏ·¶ş¼¶Ñ­»·
-{
-    /*³õÊ¼»¯ÉßºÍÊ³Îï*/
-    Snake *csnake = new Snake();
-    Food *cfood = new Food();
-    SetColor(6);
-    csnake->InitSnake();
-    srand((unsigned)time(NULL));//ÉèÖÃËæ»úÊıÖÖ×Ó£¬Èç¹ûÃ»ÓĞ Ê³ÎïµÄ³öÏÖÎ»ÖÃ½«»á¹Ì¶¨
-    cfood->DrawFood(*csnake);
-
-    /*ÓÎÏ·Ñ­»·*/
-    while (csnake->OverEdge() && csnake->HitItself()) //ÅĞ¶ÏÊÇ·ñ×²Ç½»ò×²µ½×ÔÉí£¬¼´ÊÇ·ñ»¹ÓĞÉúÃü
-    {
-        /*µ÷³öÑ¡Ôñ²Ëµ¥*/
-        if (!csnake->ChangeDirection()) //°´Esc¼üÊ±
-        {
-            int tmp = Menu();//»æÖÆ²Ëµ¥£¬²¢µÃµ½·µ»ØÖµ
-            switch (tmp)
-            {
-            case 1://¼ÌĞøÓÎÏ·
-                break;
-
-            case 2://ÖØĞÂ¿ªÊ¼
-                delete csnake;
-                delete cfood;
-                return 1;//½«1×÷ÎªPlayGameº¯ÊıµÄ·µ»ØÖµ·µ»Øµ½Gameº¯ÊıÖĞ£¬±íÊ¾ÖØĞÂ¿ªÊ¼
-
-            case 3://ÍË³öÓÎÏ·
-                delete csnake;
-                delete cfood;
-                return 2;//½«2×÷ÎªPlayGameº¯ÊıµÄ·µ»ØÖµ·µ»Øµ½Gameº¯ÊıÖĞ£¬±íÊ¾ÍË³öÓÎÏ·
-
-            default:
-                break;
-            }
-        }
-
-        if (csnake->GetFood(*cfood)) //³Ôµ½Ê³Îï
-        {
-            csnake->Move();//ÉßÔö³¤
-            UpdateScore(1);//¸üĞÂ·ÖÊı£¬1Îª·ÖÊıÈ¨ÖØ
-            RewriteScore();//ÖØĞÂ»æÖÆ·ÖÊı
-            cfood->DrawFood(*csnake);//»æÖÆĞÂÊ³Îï
-        }
-        else
-        {
-            csnake->NormalMove();//ÉßÕı³£ÒÆ¶¯
-        }
-
-        if (csnake->GetBigFood(*cfood)) //³Ôµ½ÏŞÊ±Ê³Îï
-        {
-            csnake->Move();
-            UpdateScore(cfood->GetProgressBar()/5);//·ÖÊı¸ù¾İÏŞÊ±Ê³Îï½ø¶ÈÌõÈ·¶¨
-            RewriteScore();
-        }
-
-        if (cfood->GetBigFlag()) //Èç¹û´ËÊ±ÓĞÏŞÊ±Ê³Îï£¬ÉÁË¸Ëü
-        {
-            cfood->FlashBigFood();
-        }
-
-        Sleep(speed);//ÖÆÔìÉßµÄÒÆ¶¯Ğ§¹û
-    }
-
-    /*ÉßËÀÍö*/
-    delete csnake;//ÊÍ·Å·ÖÅäµÄÄÚ´æ¿Õ¼ä
-    delete cfood;
-    int tmp = GameOver();//»æÖÆÓÎÏ·½áÊø½çÃæ£¬²¢·µ»ØËùÑ¡Ïî
-    switch (tmp)
-    {
-    case 1:
-        return 1;//ÖØĞÂ¿ªÊ¼
-    case 2:
-        return 2;//ÍË³öÓÎÏ·
-    default:
-        return 2;
-    }
-}
-
-void Controller::UpdateScore(const int& tmp)//¸üĞÂ·ÖÊı
-{
-    score += key * 10 * tmp;//ËùµÃ·ÖÊı¸ù¾İÓÎÏ·ÄÑ¶È¼°´«ÈËµÄ²ÎÊıtmpÈ·¶¨
-}
-
-void Controller::RewriteScore()//ÖØ»æ·ÖÊı
-{
-    /*Îª±£³Ö·ÖÊıÎ²²¿¶ÔÆë£¬½«×î´ó·ÖÊıÉèÖÃÎª6Î»£¬¼ÆËãµ±Ç°·ÖÊıÎ»Êı£¬½«Ê£ÓàÎ»ÊıÓÃ¿Õ¸ñ²¹È«£¬ÔÙÊä³ö·ÖÊı*/
-    SetCursorPosition(37, 8);
-    SetColor(11);
-    int bit = 0;
-    int tmp = score;
-    while (tmp != 0)
-    {
-        ++bit;
-        tmp /= 10;
-    }
-    for (int i = 0; i < (6 - bit); ++i)
-    {
-        std::cout << " " ;
-    }
-    std::cout << score ;
-}
-
-int Controller::Menu()//Ñ¡Ôñ²Ëµ¥
-{
-    /*»æÖÆ²Ëµ¥*/
-    SetColor(11);
+  if (tmp_key == 1) // é€‰æ‹©ç»§ç»­æ¸¸æˆï¼Œåˆ™å°†èœå•æ“¦é™¤
+  {
     SetCursorPosition(32, 19);
-    std::cout << "²Ëµ¥£º" ;
-    Sleep(100);
+    std::cout << "      ";
     SetCursorPosition(34, 21);
-    SetBackColor();
-    std::cout << "¼ÌĞøÓÎÏ·" ;
-    Sleep(100);
+    std::cout << "        ";
     SetCursorPosition(34, 23);
-    SetColor(11);
-    std::cout << "ÖØĞÂ¿ªÊ¼" ;
-    Sleep(100);
+    std::cout << "        ";
     SetCursorPosition(34, 25);
-    std::cout << "ÍË³öÓÎÏ·" ;
-    SetCursorPosition(0, 31);
-
-    /*Ñ¡Ôñ²¿·Ö*/
-    int ch;
-    int tmp_key = 1;
-    bool flag = false;
-    while ((ch = getch()))
-    {
-        switch (ch)
-        {
-        case 72://UP
-            if (tmp_key > 1)
-            {
-                switch (tmp_key)
-                {
-                case 2:
-                    SetCursorPosition(34, 21);
-                    SetBackColor();
-                    std::cout << "¼ÌĞøÓÎÏ·" ;
-                    SetCursorPosition(34, 23);
-                    SetColor(11);
-                    std::cout << "ÖØĞÂ¿ªÊ¼" ;
-
-                    --tmp_key;
-                    break;
-                case 3:
-                    SetCursorPosition(34, 23);
-                    SetBackColor();
-                    std::cout << "ÖØĞÂ¿ªÊ¼" ;
-                    SetCursorPosition(34, 25);
-                    SetColor(11);
-                    std::cout << "ÍË³öÓÎÏ·" ;
-
-                    --tmp_key;
-                    break;
-                }
-            }
-            break;
-
-        case 80://DOWN
-            if (tmp_key < 3)
-            {
-                switch (tmp_key)
-                {
-                case 1:
-                    SetCursorPosition(34, 23);
-                    SetBackColor();
-                    std::cout << "ÖØĞÂ¿ªÊ¼" ;
-                    SetCursorPosition(34, 21);
-                    SetColor(11);
-                    std::cout << "¼ÌĞøÓÎÏ·" ;
-
-                    ++tmp_key;
-                    break;
-                case 2:
-                    SetCursorPosition(34, 25);
-                    SetBackColor();
-                    std::cout << "ÍË³öÓÎÏ·" ;
-                    SetCursorPosition(34, 23);
-                    SetColor(11);
-                    std::cout << "ÖØĞÂ¿ªÊ¼" ;
-
-                    ++tmp_key;
-                    break;
-                }
-            }
-            break;
-
-        case 13://Enter
-            flag = true;
-            break;
-
-        default:
-            break;
-        }
-
-        if (flag)
-        {
-            break;
-        }
-        SetCursorPosition(0, 31);
-    }
-
-    if (tmp_key == 1) //Ñ¡Ôñ¼ÌĞøÓÎÏ·£¬Ôò½«²Ëµ¥²Á³ı
-    {
-        SetCursorPosition(32, 19);
-        std::cout << "      " ;
-        SetCursorPosition(34, 21);
-        std::cout << "        ";
-        SetCursorPosition(34, 23);
-        std::cout << "        ";
-        SetCursorPosition(34, 25);
-        std::cout << "        ";
-    }
-    return tmp_key;
+    std::cout << "        ";
+  }
+  return tmp_key;
 }
 
-void Controller::Game()//ÓÎÏ·Ò»¼¶Ñ­»·
-{
-    Start();//¿ªÊ¼½çÃæ
-    while (true)//ÓÎÏ·¿ÉÊÓÎªÒ»¸öËÀÑ­»·£¬Ö±µ½ÍË³öÓÎÏ·Ê±Ñ­»·½áÊø
+/**
+ * @brief æ¸¸æˆä¸€çº§å¾ªç¯ï¼ˆä¸»å¾ªç¯ï¼‰
+ * @details æ•´åˆæ•´ä¸ªæ¸¸æˆæµç¨‹ï¼šå¼€å§‹ç•Œé¢ â†’ éš¾åº¦é€‰æ‹© â†’ æ¸¸æˆè¿è¡Œ â†’ æ¸¸æˆç»“æŸ
+ *          æ”¯æŒé‡æ–°å¼€å§‹æ¸¸æˆå’Œé€€å‡ºæ¸¸æˆåŠŸèƒ½
+ */
+void Controller::Game() {
+  Start();     // æ˜¾ç¤ºå¼€å§‹ç•Œé¢ï¼ˆåŠ¨ç”»ï¼‰
+  while (true) // æ¸¸æˆå¯è§†ä¸ºä¸€ä¸ªæ­»å¾ªç¯ï¼Œç›´åˆ°é€€å‡ºæ¸¸æˆæ—¶å¾ªç¯ç»“æŸ
+  {
+    Select();   // æ˜¾ç¤ºéš¾åº¦é€‰æ‹©ç•Œé¢
+    DrawGame(); // ç»˜åˆ¶æ¸¸æˆç•Œé¢ï¼ˆåœ°å›¾ã€ä¾§è¾¹æ ï¼‰
+    int tmp =
+        PlayGame(); // å¼€å¯æ¸¸æˆå¾ªç¯ï¼Œå½“é‡æ–°å¼€å§‹æˆ–é€€å‡ºæ¸¸æˆæ—¶ï¼Œç»“æŸå¾ªç¯å¹¶è¿”å›å€¼ç»™tmp
+    if (tmp == 1)   // è¿”å›å€¼ä¸º1æ—¶é‡æ–°å¼€å§‹æ¸¸æˆ
     {
-        Select();//Ñ¡Ôñ½çÃæ
-        DrawGame();//»æÖÆÓÎÏ·½çÃæ
-        int tmp = PlayGame();//¿ªÆôÓÎÏ·Ñ­»·£¬µ±ÖØĞÂ¿ªÊ¼»òÍË³öÓÎÏ·Ê±£¬½áÊøÑ­»·²¢·µ»ØÖµ¸øtmp
-        if (tmp == 1) //·µ»ØÖµÎª1Ê±ÖØĞÂ¿ªÊ¼ÓÎÏ·
-        {
-            system("cls");
-            continue;
-        }
-        else if (tmp == 2) //·µ»ØÖµÎª2Ê±ÍË³öÓÎÏ·
-        {
-            break;
-        }
-        else
-        {
-            break;
-        }
+      system("cls");     // æ¸…å±
+      continue;          // ç»§ç»­ä¸‹ä¸€æ¬¡å¾ªç¯ï¼ˆé‡æ–°é€‰æ‹©éš¾åº¦ï¼‰
+    } else if (tmp == 2) // è¿”å›å€¼ä¸º2æ—¶é€€å‡ºæ¸¸æˆ
+    {
+      break; // é€€å‡ºå¾ªç¯ï¼Œç»“æŸæ¸¸æˆ
+    } else {
+      break; // å…¶ä»–æƒ…å†µä¹Ÿé€€å‡ºï¼ˆå®¹é”™å¤„ç†ï¼‰
     }
+  }
 }
 
-int Controller::GameOver()//ÓÎÏ·½áÊø½çÃæ
-{
-    /*»æÖÆÓÎÏ·½áÊø½çÃæ*/
-    Sleep(500);
-    SetColor(11);
-    SetCursorPosition(10, 8);
-    std::cout << "©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥" ;
-    Sleep(30);
-    SetCursorPosition(9, 9);
-    std::cout << " ©§               Game Over !!!              ©§" ;
-    Sleep(30);
-    SetCursorPosition(9, 10);
-    std::cout << " ©§                                          ©§" ;
-    Sleep(30);
-    SetCursorPosition(9, 11);
-    std::cout << " ©§              ºÜÒÅº¶£¡Äã¹ÒÁË              ©§" ;
-    Sleep(30);
-    SetCursorPosition(9, 12);
-    std::cout << " ©§                                          ©§" ;
-    Sleep(30);
-    SetCursorPosition(9, 13);
-    std::cout << " ©§             ÄãµÄ·ÖÊıÎª£º                 ©§" ;
-    SetCursorPosition(24, 13);
-    std::cout << score ;
-    Sleep(30);
-    SetCursorPosition(9, 14);
-    std::cout << " ©§                                          ©§" ;
-    Sleep(30);
-    SetCursorPosition(9, 15);
-    std::cout << " ©§   ÊÇ·ñÔÙÀ´Ò»¾Ö£¿                         ©§" ;
-    Sleep(30);
-    SetCursorPosition(9, 16);
-    std::cout << " ©§                                          ©§" ;
-    Sleep(30);
-    SetCursorPosition(9, 17);
-    std::cout << " ©§                                          ©§" ;
-    Sleep(30);
-    SetCursorPosition(9, 18);
-    std::cout << " ©§    àÅ£¬ºÃµÄ        ²»ÁË£¬»¹ÊÇÑ§Ï°ÓĞÒâË¼  ©§" ;
-    Sleep(30);
-    SetCursorPosition(9, 19);
-    std::cout << " ©§                                          ©§" ;
-    Sleep(30);
-    SetCursorPosition(9, 20);
-    std::cout << " ©§                                          ©§" ;
-    Sleep(30);
-    SetCursorPosition(10, 21);
-    std::cout << "©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥©¥" ;
+/**
+ * @brief æ˜¾ç¤ºæ¸¸æˆç»“æŸç•Œé¢
+ * @return int è¿”å›å€¼ï¼š1è¡¨ç¤ºé‡æ–°å¼€å§‹ï¼Œ2è¡¨ç¤ºé€€å‡ºæ¸¸æˆ
+ * @details æ˜¾ç¤ºæ¸¸æˆç»“æŸä¿¡æ¯å’Œæœ€ç»ˆå¾—åˆ†ï¼Œæä¾›ä¸¤ä¸ªé€‰é¡¹ï¼ˆé‡æ–°å¼€å§‹/é€€å‡ºæ¸¸æˆï¼‰
+ *          æ”¯æŒå·¦å³æ–¹å‘é”®é€‰æ‹©å’Œå›è½¦ç¡®è®¤
+ */
+int Controller::GameOver() {
+  /* ç»˜åˆ¶æ¸¸æˆç»“æŸç•Œé¢ */
+  Sleep(500); // å»¶è¿Ÿ500æ¯«ç§’ï¼Œè®©ç©å®¶çœ‹æ¸…æ¥šè›‡æ­»äº¡çš„ç¬é—´
+  SetColor(11);
+  SetCursorPosition(10, 8);
+  std::cout << "â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”";
+  Sleep(30);
+  SetCursorPosition(9, 9);
+  std::cout << " â”ƒ               Game Over !!!              â”ƒ";
+  Sleep(30);
+  SetCursorPosition(9, 10);
+  std::cout << " â”ƒ                                          â”ƒ";
+  Sleep(30);
+  SetCursorPosition(9, 11);
+  std::cout << " â”ƒ              å¾ˆé—æ†¾ï¼ä½ æŒ‚äº†              â”ƒ";
+  Sleep(30);
+  SetCursorPosition(9, 12);
+  std::cout << " â”ƒ                                          â”ƒ";
+  Sleep(30);
+  SetCursorPosition(9, 13);
+  std::cout << " â”ƒ             ä½ çš„åˆ†æ•°ä¸ºï¼š                 â”ƒ";
+  SetCursorPosition(24, 13);
+  std::cout << score;
+  Sleep(30);
+  SetCursorPosition(9, 14);
+  std::cout << " â”ƒ                                          â”ƒ";
+  Sleep(30);
+  SetCursorPosition(9, 15);
+  std::cout << " â”ƒ   æ˜¯å¦å†æ¥ä¸€å±€ï¼Ÿ                         â”ƒ";
+  Sleep(30);
+  SetCursorPosition(9, 16);
+  std::cout << " â”ƒ                                          â”ƒ";
+  Sleep(30);
+  SetCursorPosition(9, 17);
+  std::cout << " â”ƒ                                          â”ƒ";
+  Sleep(30);
+  SetCursorPosition(9, 18);
+  std::cout << " â”ƒ    å—¯ï¼Œå¥½çš„        ä¸äº†ï¼Œè¿˜æ˜¯å­¦ä¹ æœ‰æ„æ€  â”ƒ";
+  Sleep(30);
+  SetCursorPosition(9, 19);
+  std::cout << " â”ƒ                                          â”ƒ";
+  Sleep(30);
+  SetCursorPosition(9, 20);
+  std::cout << " â”ƒ                                          â”ƒ";
+  Sleep(30);
+  SetCursorPosition(10, 21);
+  std::cout << "â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”";
 
-    Sleep(100);
-    SetCursorPosition(12, 18);
-    SetBackColor();
-    std::cout << "àÅ£¬ºÃµÄ" ;
-    SetCursorPosition(0, 31);
+  Sleep(100);
+  SetCursorPosition(12, 18);
+  SetBackColor();
+  std::cout << "å—¯ï¼Œå¥½çš„";
+  SetCursorPosition(0, 31);
 
-    /*Ñ¡Ôñ²¿·Ö*/
-    int ch;
-    int tmp_key = 1;
-    bool flag = false;
-    while ((ch = getch()))
-    {
-        switch (ch)
-        {
-        case 75://LEFT
-            if (tmp_key > 1)
-            {
-                SetCursorPosition(12, 18);
-                SetBackColor();
-                std::cout << "àÅ£¬ºÃµÄ" ;
-                SetCursorPosition(20, 18);
-                SetColor(11);
-                std::cout << "²»ÁË£¬»¹ÊÇÑ§Ï°ÓĞÒâË¼" ;
-                --tmp_key;
-            }
-            break;
+  /* é€‰æ‹©éƒ¨åˆ† */
+  int ch;            // è®°å½•é”®ç›˜è¾“å…¥
+  int tmp_key = 1;   // å½“å‰é€‰ä¸­çš„é€‰é¡¹ï¼ˆ1æˆ–2ï¼‰
+  bool flag = false; // æ ‡è®°æ˜¯å¦æŒ‰ä¸‹ç¡®è®¤é”®
+  while ((ch = getch())) {
+    switch (ch) {
+    case 75: // LEFTå·¦æ–¹å‘é”®
+      if (tmp_key > 1) {
+        SetCursorPosition(12, 18);
+        SetBackColor();
+        std::cout << "å—¯ï¼Œå¥½çš„";
+        SetCursorPosition(20, 18);
+        SetColor(11);
+        std::cout << "ä¸äº†ï¼Œè¿˜æ˜¯å­¦ä¹ æœ‰æ„æ€";
+        --tmp_key;
+      }
+      break;
 
-        case 77://RIGHT
-            if (tmp_key < 2)
-            {
-                SetCursorPosition(20, 18);
-                SetBackColor();
-                std::cout << "²»ÁË£¬»¹ÊÇÑ§Ï°ÓĞÒâË¼" ;
-                SetCursorPosition(12, 18);
-                SetColor(11);
-                std::cout << "àÅ£¬ºÃµÄ" ;
-                ++tmp_key;
-            }
-            break;
+    case 77: // RIGHTå³æ–¹å‘é”®
+      if (tmp_key < 2) {
+        SetCursorPosition(20, 18);
+        SetBackColor();
+        std::cout << "ä¸äº†ï¼Œè¿˜æ˜¯å­¦ä¹ æœ‰æ„æ€";
+        SetCursorPosition(12, 18);
+        SetColor(11);
+        std::cout << "å—¯ï¼Œå¥½çš„";
+        ++tmp_key;
+      }
+      break;
 
-        case 13://Enter
-            flag = true;
-            break;
+    case 13: // Enterå›è½¦é”®
+      flag = true;
+      break;
 
-        default:
-            break;
-        }
-
-        SetCursorPosition(0, 31);
-        if (flag) {
-            break;
-        }
-    }
-
-    SetColor(11);
-    switch (tmp_key)
-    {
-    case 1:
-        return 1;//ÖØĞÂ¿ªÊ¼
-    case 2:
-        return 2;//ÍË³öÓÎÏ·
     default:
-        return 1;
+      break;
     }
+
+    SetCursorPosition(0, 31); // å°†å…‰æ ‡ç½®äºå·¦ä¸‹è§’
+    if (flag) {
+      break; // æŒ‰ä¸‹ç¡®è®¤é”®ï¼Œé€€å‡ºé€‰æ‹©å¾ªç¯
+    }
+  }
+
+  SetColor(11); // æ¢å¤é¢œè‰²
+  switch (tmp_key) {
+  case 1:
+    return 1; // é‡æ–°å¼€å§‹
+  case 2:
+    return 2; // é€€å‡ºæ¸¸æˆ
+  default:
+    return 1; // é»˜è®¤é‡æ–°å¼€å§‹
+  }
 }

@@ -12,7 +12,7 @@
  * @brief 在当前位置绘制方块图形
  * @details 使用图形字符"■"在控制台指定坐标位置绘制方块，用于地图边界等静态元素
  */
-void Point::Print() {
+void Point::Print() const {
   SetCursorPosition(x, y); // 设置光标到指定坐标位置
   std::cout << "■";        // 输出方块字符（占2个字符宽度）
 }
@@ -21,7 +21,7 @@ void Point::Print() {
  * @brief 在当前位置绘制圆形图形
  * @details 使用图形字符"●"在控制台指定坐标位置绘制圆形，主要用于蛇身的绘制
  */
-void Point::PrintCircular() {
+void Point::PrintCircular() const {
   SetCursorPosition(x, y); // 设置光标到指定坐标位置
   std::cout << "●";        // 输出圆形字符（占2个字符宽度）
 }
@@ -30,7 +30,7 @@ void Point::PrintCircular() {
  * @brief 清除当前位置的输出内容
  * @details 通过输出两个空格来清除指定位置的显示内容，用于蛇移动时的尾部清除
  */
-void Point::Clear() {
+void Point::Clear() const {
   SetCursorPosition(x, y); // 设置光标到指定坐标位置
   std::cout << "  ";       // 输出两个空格清除显示（因为图形字符占2个字符宽度）
 }

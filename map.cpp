@@ -5,7 +5,8 @@
  */
 
 #include "map.h"
-#include <windows.h>
+#include <chrono>
+#include <thread>
 
 /**
  * @brief 绘制游戏地图边界
@@ -17,6 +18,6 @@ void Map::PrintInitmap() {
   // 遍历地图边界点集合，逐个绘制边界
   for (auto &point : initmap) {
     point.Print(); // 在当前点位置绘制方块"■"
-    Sleep(10);     // 延迟10毫秒，营造边界逐帧显示的动画效果
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 }

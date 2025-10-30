@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <windows.h>
 
-
 /**
  * @brief 设置控制台窗口大小和标题
  * @param cols 窗口列数（逻辑单位，一个图形字符占2个物理字符宽度）
@@ -68,4 +67,26 @@ void SetBackColor() {
                               BACKGROUND_BLUE |  // 蓝色背景分量
                               BACKGROUND_GREEN | // 绿色背景分量
                               BACKGROUND_RED); // 红色背景分量（组合成白色背景）
+}
+
+/**
+ * @brief 清空控制台并将光标移动到原点
+ */
+void ClearScreen() {
+  HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+  if (hOut == INVALID_HANDLE_VALUE)
+    return;
+
+  CONSOLE_SCREEN_BUFFER_INFO csbi;
+  if (!GetConsoleScreenBufferInfo(hOut, &csbi))
+    return;
+
+  DWORD cellCount =
+      static_cast<DWORD>(csbi.dwSize.X) * static_cast<DWORD>(csbi.dwSize.Y);
+  DWORD written;
+  COORD home = {0, 0};
+
+  FillConsoleOutputCharacter(hOut, ' ', cellCount, home, &written);
+  FillConsoleOutputAttribute(hOut, csbi.wAttributes, cellCount, home, &written);
+  SetConsoleCursorPosition(hOut, home);
 }

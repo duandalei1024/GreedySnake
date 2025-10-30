@@ -5,9 +5,19 @@
  */
 
 #include "food.h"
+#include "snake.h"
 #include "tools.h"
-#include <cstdlib>
 #include <iostream>
+#include <random>
+
+namespace {
+// 线程本地随机数引擎
+thread_local std::mt19937 rng{std::random_device{}()};
+inline int randomInRange(int low, int high) {
+  std::uniform_int_distribution<int> dist(low, high);
+  return dist(rng);
+}
+}
 
 /**
  * @brief 绘制普通食物
@@ -21,15 +31,9 @@ void Food::DrawFood(Snake &csnake) {
      如果获得的坐标与蛇身重叠，则重新获取。
      同时每5颗食物就出现一颗限时食物 */
   while (true) {
-    // 生成随机坐标（0-29）
-    int tmp_x = rand() % 30;
-    int tmp_y = rand() % 30;
-
-    // 确保坐标至少为2（地图内边界）
-    if (tmp_x < 2)
-      tmp_x += 2;
-    if (tmp_y < 2)
-      tmp_y += 2;
+    // 生成随机坐标（2-29）
+    int tmp_x = randomInRange(2, 29);
+    int tmp_y = randomInRange(2, 29);
 
     bool flag = false; // 标记是否与蛇身或限时食物重叠
 
@@ -81,15 +85,9 @@ void Food::DrawBigFood(Snake &csnake) {
 
   // 循环生成限时食物的位置，确保不与蛇身和普通食物重叠
   while (true) {
-    // 生成随机坐标
-    int tmp_x = rand() % 30;
-    int tmp_y = rand() % 30;
-
-    // 确保坐标至少为2（地图内边界）
-    if (tmp_x < 2)
-      tmp_x += 2;
-    if (tmp_y < 2)
-      tmp_y += 2;
+    // 生成随机坐标（2-29）
+    int tmp_x = randomInRange(2, 29);
+    int tmp_y = randomInRange(2, 29);
 
     bool flag = false; // 标记是否与蛇身或普通食物重叠
 

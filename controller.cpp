@@ -15,6 +15,16 @@
 #include <iostream>
 #include <time.h>
 #include <windows.h>
+#include <chrono>
+#include <thread>
+
+namespace {
+constexpr int KEY_UP = 72;
+constexpr int KEY_DOWN = 80;
+constexpr int KEY_LEFT = 75;
+constexpr int KEY_RIGHT = 77;
+constexpr int KEY_ENTER = 13;
+}
 
 
 /**
@@ -24,15 +34,14 @@
 void Controller::Start() {
   SetWindowSize(41, 32); // 设置窗口大小为41列32行（逻辑单位）
   SetColor(2);           // 设置开始动画颜色为绿色
-  StartInterface *start = new StartInterface(); // 动态分配开始界面对象
-  start->Action(); // 执行开始动画（蛇形动画和"SNAKE"文字）
-  delete start;    // 释放内存空间
+  StartInterface start; // 使用自动对象
+  start.Action(); // 执行开始动画（蛇形动画和"SNAKE"文字）
 
   /* 设置光标位置，并输出提示语，等待任意键输入 */
   SetCursorPosition(13, 26);
   std::cout << "Press any key to start... ";
   SetCursorPosition(13, 27);
-  system("pause"); // 暂停程序，等待用户按键
+  getch(); // 暂停程序，等待用户按键
 }
 
 /**
@@ -78,7 +87,7 @@ void Controller::Select() {
   {
     switch (ch) // 检测输入键
     {
-    case 72:       // UP上方向键
+    case KEY_UP:       // UP上方向键
       if (key > 1) // 当此时选中项为第一项时，UP上方向键无效
       {
         switch (key) {
@@ -119,7 +128,7 @@ void Controller::Select() {
       }
       break;
 
-    case 80: // DOWN下方向键
+    case KEY_DOWN: // DOWN下方向键
       if (key < 4) {
         switch (key) {
         case 1:
@@ -156,7 +165,7 @@ void Controller::Select() {
       }
       break;
 
-    case 13:       // Enter回车键
+    case KEY_ENTER:       // Enter回车键
       flag = true; // 标记已按下确认键
       break;
     default: // 无效按键
@@ -192,7 +201,7 @@ void Controller::Select() {
  * @details 清屏后绘制地图边界和侧边栏信息（游戏标题、难度、得分、操作说明）
  */
 void Controller::DrawGame() {
-  system("cls"); // 清屏
+  ClearScreen(); // 清屏
 
   /* 绘制地图 */
   SetColor(3);               // 设置颜色为青色
@@ -243,19 +252,17 @@ void Controller::DrawGame() {
  */
 int Controller::PlayGame() {
   /* 初始化蛇和食物 */
-  Snake *csnake = new Snake(); // 创建蛇对象
-  Food *cfood = new Food();    // 创建食物对象
+  Snake csnake; // 创建蛇对象
+  Food cfood;   // 创建食物对象
   SetColor(6);                 // 设置颜色为黄色
-  csnake->InitSnake();         // 初始化并绘制蛇
-  srand(
-      (unsigned)time(NULL)); // 设置随机数种子，如果没有，食物的出现位置将会固定
-  cfood->DrawFood(*csnake);  // 绘制第一个食物
+  csnake.InitSnake();         // 初始化并绘制蛇
+  cfood.DrawFood(csnake);     // 绘制第一个食物
 
   /* 游戏循环 */
   // 判断是否撞墙或撞到自身，即是否还有生命（两个条件都为true时继续游戏）
-  while (csnake->OverEdge() && csnake->HitItself()) {
+  while (csnake.OverEdge() && csnake.HitItself()) {
     /* 调出选择菜单 */
-    if (!csnake->ChangeDirection()) // 按Esc键时返回false
+    if (!csnake.ChangeDirection()) // 按Esc键时返回false
     {
       int tmp = Menu(); // 绘制菜单，并得到返回值
       switch (tmp) {
@@ -263,13 +270,9 @@ int Controller::PlayGame() {
         break;
 
       case 2:          // 重新开始
-        delete csnake; // 释放蛇对象内存
-        delete cfood;  // 释放食物对象内存
         return 1; // 将1作为PlayGame函数的返回值返回到Game函数中，表示重新开始
 
       case 3: // 退出游戏
-        delete csnake;
-        delete cfood;
         return 2; // 将2作为PlayGame函数的返回值返回到Game函数中，表示退出游戏
 
       default:
@@ -278,34 +281,32 @@ int Controller::PlayGame() {
     }
 
     // 检测是否吃到普通食物
-    if (csnake->GetFood(*cfood)) {
-      csnake->Move();           // 蛇增长（长度+1）
+    if (csnake.GetFood(cfood)) {
+      csnake.Move();           // 蛇增长（长度+1）
       UpdateScore(1);           // 更新分数，1为分数权重
       RewriteScore();           // 重新绘制分数
-      cfood->DrawFood(*csnake); // 绘制新食物
+      cfood.DrawFood(csnake);   // 绘制新食物
     } else                      // 未吃到食物
     {
-      csnake->NormalMove(); // 蛇正常移动（长度不变）
+      csnake.NormalMove(); // 蛇正常移动（长度不变）
     }
 
     // 检测是否吃到限时食物
-    if (csnake->GetBigFood(*cfood)) {
-      csnake->Move();                           // 蛇增长
-      UpdateScore(cfood->GetProgressBar() / 5); // 分数根据限时食物进度条确定
+    if (csnake.GetBigFood(cfood)) {
+      csnake.Move();                           // 蛇增长
+      UpdateScore(cfood.GetProgressBar() / 5); // 分数根据限时食物进度条确定
       RewriteScore();
     }
 
     // 如果此时有限时食物，闪烁它并更新进度条
-    if (cfood->GetBigFlag()) {
-      cfood->FlashBigFood();
+    if (cfood.GetBigFlag()) {
+      cfood.FlashBigFood();
     }
 
-    Sleep(speed); // 延迟，制造蛇的移动效果（speed值越小，速度越快）
+    std::this_thread::sleep_for(std::chrono::milliseconds(speed)); // 延迟，制造蛇的移动效果（speed值越小，速度越快）
   }
 
   /* 蛇死亡 */
-  delete csnake; // 释放分配的内存空间
-  delete cfood;
   int tmp = GameOver(); // 绘制游戏结束界面，并返回所选项
   switch (tmp) {
   case 1:
@@ -379,7 +380,7 @@ int Controller::Menu() {
   bool flag = false;
   while ((ch = getch())) {
     switch (ch) {
-    case 72: // UP
+    case KEY_UP: // UP
       if (tmp_key > 1) {
         switch (tmp_key) {
         case 2:
@@ -406,7 +407,7 @@ int Controller::Menu() {
       }
       break;
 
-    case 80: // DOWN
+    case KEY_DOWN: // DOWN
       if (tmp_key < 3) {
         switch (tmp_key) {
         case 1:
@@ -433,7 +434,7 @@ int Controller::Menu() {
       }
       break;
 
-    case 13: // Enter
+    case KEY_ENTER: // Enter
       flag = true;
       break;
 
@@ -476,7 +477,7 @@ void Controller::Game() {
         PlayGame(); // 开启游戏循环，当重新开始或退出游戏时，结束循环并返回值给tmp
     if (tmp == 1)   // 返回值为1时重新开始游戏
     {
-      system("cls");     // 清屏
+      ClearScreen();     // 清屏
       continue;          // 继续下一次循环（重新选择难度）
     } else if (tmp == 2) // 返回值为2时退出游戏
     {
@@ -553,7 +554,7 @@ int Controller::GameOver() {
   bool flag = false; // 标记是否按下确认键
   while ((ch = getch())) {
     switch (ch) {
-    case 75: // LEFT左方向键
+    case KEY_LEFT: // LEFT左方向键
       if (tmp_key > 1) {
         SetCursorPosition(12, 18);
         SetBackColor();
@@ -565,7 +566,7 @@ int Controller::GameOver() {
       }
       break;
 
-    case 77: // RIGHT右方向键
+    case KEY_RIGHT: // RIGHT右方向键
       if (tmp_key < 2) {
         SetCursorPosition(20, 18);
         SetBackColor();

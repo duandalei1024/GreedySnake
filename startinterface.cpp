@@ -5,7 +5,8 @@
  */
 
 #include "startinterface.h"
-#include <windows.h>
+#include <chrono>
+#include <thread>
 
 /**
  * @brief 第一阶段动画：蛇从左边出现到完全显示
@@ -15,7 +16,7 @@ void StartInterface::PrintFirst() {
   // 遍历开始动画中的蛇身点集合
   for (auto &point : startsnake) {
     point.Print(); // 绘制当前点（方块"■"）
-    Sleep(speed);  // 延迟，控制动画速度
+    std::this_thread::sleep_for(std::chrono::milliseconds(speed));
   }
 }
 
@@ -30,17 +31,17 @@ void StartInterface::PrintSecond() {
     /* 计算蛇头的下一个位置，并将其压入startsnake中，绘制出来，将蛇尾去掉
        使用数学公式使蛇的移动轨迹呈现波浪形：
        j的值在15-19之间波动，形成上下起伏的效果 */
-        int j = (((i-2) % 8) < 4) ? (15 + (i-2) % 8) : (21 - (i-2) % 8);
+    int j = (((i - 2) % 8) < 4) ? (15 + (i - 2) % 8) : (21 - (i - 2) % 8);
 
-        // 在蛇尾添加新点（模拟蛇头移动）
-        startsnake.emplace_back(Point(i, j));
-        startsnake.back().Print(); // 绘制新添加的点
+    // 在蛇尾添加新点（模拟蛇头移动）
+    startsnake.emplace_back(Point(i, j));
+    startsnake.back().Print(); // 绘制新添加的点
 
-        // 清除并删除蛇尾（实现移动效果）
-        startsnake.front().Clear();
-        startsnake.pop_front();
+    // 清除并删除蛇尾（实现移动效果）
+    startsnake.front().Clear();
+    startsnake.pop_front();
 
-        Sleep(speed); // 延迟，控制动画速度
+    std::this_thread::sleep_for(std::chrono::milliseconds(speed));
   }
 }
 
@@ -58,9 +59,9 @@ void StartInterface::PrintThird() {
       startsnake.pop_front();
     }
 
-    ClearText();  // 清除已有文字显示
-    PrintText();  // 绘制更新位置后的文字（向右移动一格）
-    Sleep(speed); // 延迟，控制动画速度
+    ClearText(); // 清除已有文字显示
+    PrintText(); // 绘制更新位置后的文字（向右移动一格）
+    std::this_thread::sleep_for(std::chrono::milliseconds(speed));
   }
 }
 

@@ -5,9 +5,18 @@
  */
 
 #include "snake.h"
+#include "food.h"
 #include "tools.h"
 #include <conio.h>
 #include <iostream>
+
+namespace {
+constexpr int KEY_UP = 72;
+constexpr int KEY_DOWN = 80;
+constexpr int KEY_LEFT = 75;
+constexpr int KEY_RIGHT = 77;
+constexpr int KEY_ESC = 27;
+}
 
 
 /**
@@ -71,7 +80,7 @@ void Snake::NormalMove() {
  * @return bool true表示未超出边界（安全），false表示超出边界（游戏结束）
  * @details 检查蛇头（snake.back()）的坐标是否在地图边界内（2-29之间）
  */
-bool Snake::OverEdge() {
+bool Snake::OverEdge() const {
   // 检查蛇头坐标是否在有效范围内（2 <= x < 30, 2 <= y < 30）
   // 注意：边界坐标是1-30，但有效游戏区域是2-29
   return snake.back().GetX() < 30 && snake.back().GetY() < 30 &&
@@ -84,28 +93,18 @@ bool Snake::OverEdge() {
  * @details 通过遍历蛇身，检查蛇头是否与其他身体部分重叠
  *          如果蛇头位置在蛇身中出现的次数超过1次（即与其他身体部分重叠），则撞到自身
  */
-bool Snake::HitItself() {
+bool Snake::HitItself() const {
+  const int headX = snake.back().GetX();
+  const int headY = snake.back().GetY();
+  // 从头到尾遍历，遇到第一个与头相同的位置即认为撞到自身
   std::deque<Point>::size_type cnt = 1; // 计数器，初始为1（蛇头本身）
-
-  // 获取蛇头的坐标（snake.back()是蛇头）
-  Point *head = new Point(snake.back().GetX(), snake.back().GetY());
-
-  // 遍历蛇身，统计与蛇头位置相同的点的数量
-  // 如果整条蛇中与蛇头不相同的坐标数量等于蛇长，则意味着蛇头未碰撞到自身
-  for (auto &point : snake) {
-    if (!(point == *head)) // 如果当前点与蛇头位置不同
-      ++cnt;               // 计数器加1
-    else                   // 如果找到与蛇头位置相同的点
-      break;               // 停止遍历（已经发现重叠）
+  for (const auto &point : snake) {
+    if (!(point.GetX() == headX && point.GetY() == headY))
+      ++cnt;
+    else
+      break;
   }
-
-  delete head; // 释放临时对象
-
-  // 如果计数器等于蛇的长度，说明蛇头未与任何身体部分重叠（安全）
-  if (cnt == snake.size())
-    return true;
-  else // 否则说明蛇头撞到了身体（游戏结束）
-    return false;
+  return cnt == snake.size();
 }
 
 /**
@@ -125,20 +124,20 @@ bool Snake::ChangeDirection() {
     case -32:       // 方向键的前缀码（-32表示按下的是方向键）
       ch = getch(); // 再次获取，得到实际的方向键值
       switch (ch) {
-      case 72: // 上方向键（UP）
+      case KEY_UP: // 上方向键（UP）
         // 如果当前方向不是向下，则允许向上移动（禁止180度转向）
         if (direction != Direction::DOWN)
           direction = Direction::UP;
         break;
-      case 80: // 下方向键（DOWN）
+      case KEY_DOWN: // 下方向键（DOWN）
         if (direction != Direction::UP)
           direction = Direction::DOWN;
         break;
-      case 75: // 左方向键（LEFT）
+      case KEY_LEFT: // 左方向键（LEFT）
         if (direction != Direction::RIGHT)
           direction = Direction::LEFT;
         break;
-      case 77: // 右方向键（RIGHT）
+      case KEY_RIGHT: // 右方向键（RIGHT）
         if (direction != Direction::LEFT)
           direction = Direction::RIGHT;
         break;
@@ -147,7 +146,7 @@ bool Snake::ChangeDirection() {
       }
       return true; // 方向改变成功，继续游戏
 
-    case 27:        // ESC键
+    case KEY_ESC:        // ESC键
       return false; // 返回false，触发暂停菜单
 
     default:       // 其他按键
@@ -163,7 +162,7 @@ bool Snake::ChangeDirection() {
  * @return bool true表示吃到食物，false表示未吃到
  * @details 检查蛇头坐标是否与普通食物坐标相同
  */
-bool Snake::GetFood(const Food &cfood) {
+bool Snake::GetFood(const Food &cfood) const {
   // 比较蛇头坐标与食物坐标
   if (snake.back().GetX() == cfood.x && snake.back().GetY() == cfood.y)
     return true; // 吃到食物

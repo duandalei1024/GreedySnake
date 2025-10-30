@@ -3,13 +3,12 @@
 
 #include <deque>
 #include "point.h"
-#include "food.h"
 
 class Food;
 class Snake
 {
 public:
-    enum Direction {UP, DOWN, LEFT, RIGHT};
+    enum class Direction {UP, DOWN, LEFT, RIGHT};
 
     Snake() {
         snake.emplace_back(14, 8);
@@ -20,10 +19,10 @@ public:
     void InitSnake();
     void Move();
     void NormalMove();
-    bool OverEdge();
-    bool HitItself();
+    bool OverEdge() const;
+    bool HitItself() const;
     bool ChangeDirection();
-    bool GetFood(const Food&);
+    bool GetFood(const Food&) const;
     bool GetBigFood(Food&);
 private:
     std::deque<Point> snake;
